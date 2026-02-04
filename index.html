@@ -233,6 +233,18 @@
         <div class="upload-section">
             <label for="upload" class="upload-btn">📁 Pilih Foto</label>
             <input type="file" accept="image/*" id="upload">
+
+            <p style="margin: 15px 0; color: #999; font-weight: 600;">atau</p>
+
+            <div style="display: flex; gap: 10px; justify-content: center; align-items: center; flex-wrap: wrap;">
+                <input type="url" id="imageUrl" placeholder="https://example.com/image.jpg" style="padding: 12px 20px; border: 2px solid #e0e0e0; border-radius: 50px; 
+                              width: 100%; max-width: 400px; font-size: 0.9em; outline: none;
+                              transition: border-color 0.3s;" onfocus="this.style.borderColor='#667eea'"
+                    onblur="this.style.borderColor='#e0e0e0'">
+                <button onclick="loadImageFromUrl()" class="upload-btn" style="margin: 0; padding: 12px 30px;">
+                    🔗 Load dari URL
+                </button>
+            </div>
         </div>
 
         <canvas id="canvas"></canvas>
@@ -302,14 +314,51 @@
             };
 
             img.onload = function () {
-                canvas.width = img.width;
-                canvas.height = img.height;
-                ctx.drawImage(img, 0, 0);
-                originalImageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                loadImageToCanvas(img);
             };
 
             reader.readAsDataURL(file);
         });
+
+        function loadImageFromUrl() {
+            const url = document.getElementById('imageUrl').value.trim();
+
+            if (!url) {
+                alert('Silakan masukkan URL gambar terlebih dahulu!');
+                return;
+            }
+
+            // Validate URL format
+            try {
+                new URL(url);
+            } catch (e) {
+                alert('URL tidak valid! Pastikan URL lengkap dengan https://');
+                return;
+            }
+
+            const img = new Image();
+
+            // Enable CORS
+            img.crossOrigin = 'anonymous';
+
+            img.onload = function () {
+                loadImageToCanvas(img);
+                document.getElementById('imageUrl').value = ''; // Clear input
+            };
+
+            img.onerror = function () {
+                alert('Gagal memuat gambar dari URL!\n\nKemungkinan penyebab:\n- URL tidak valid\n- Gambar tidak ada\n- Server tidak mengizinkan CORS\n\nCoba gunakan URL gambar dari sumber yang mendukung CORS atau upload file langsung.');
+            };
+
+            img.src = url;
+        }
+
+        function loadImageToCanvas(img) {
+            canvas.width = img.width;
+            canvas.height = img.height;
+            ctx.drawImage(img, 0, 0);
+            originalImageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        }
 
         function applyFilter(type) {
             if (!originalImageData) {
