@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ubah Warna Foto - Advanced</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 1200px;
+            width: 100%;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 2em;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 0.9em;
+        }
+
+        .upload-section {
+            margin-bottom: 20px;
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        .upload-btn {
+            display: inline-block;
+            padding: 12px 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: transform 0.2s;
+        }
+
+        .upload-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        canvas {
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            margin: 20px 0;
+            max-width: 100%;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin: 20px 0;
+            justify-content: center;
+        }
+
+        .control-group {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 12px;
+            flex: 1;
+            min-width: 250px;
+        }
+
+        .control-group h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1em;
+        }
+
+        .button-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            font-size: 0.9em;
+        }
+
+        .btn-primary {
+            background: #2563eb;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #1e40af;
+            transform: translateY(-2px);
+        }
+
+        .btn-success {
+            background: #10b981;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #059669;
+            transform: translateY(-2px);
+        }
+
+        .btn-danger {
+            background: #ef4444;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #dc2626;
+            transform: translateY(-2px);
+        }
+
+        .slider-control {
+            margin-top: 15px;
+        }
+
+        .slider-control label {
+            display: block;
+            color: #555;
+            margin-bottom: 8px;
+            font-weight: 600;
+            font-size: 0.9em;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            height: 6px;
+            border-radius: 5px;
+            background: #d3d3d3;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #667eea;
+            cursor: pointer;
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #667eea;
+            cursor: pointer;
+            border: none;
+        }
+
+        .color-picker-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        input[type="color"] {
+            width: 60px;
+            height: 40px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .value-display {
+            display: inline-block;
+            background: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 0.85em;
+            color: #666;
+            min-width: 50px;
+            text-align: center;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 1.5em;
+            }
+
+            .control-group {
+                min-width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>🎨 Ubah Warna Foto</h1>
+        <p class="subtitle">Edit dan ganti warna foto Anda dengan mudah</p>
+
+        <div class="upload-section">
+            <label for="upload" class="upload-btn">📁 Pilih Foto</label>
+            <input type="file" accept="image/*" id="upload">
+        </div>
+
+        <canvas id="canvas"></canvas>
+
+        <div class="controls">
+            <div class="control-group">
+                <h3>🎭 Filter Preset</h3>
+                <div class="button-group">
+                    <button class="btn-primary" onclick="applyFilter('grayscale')">Grayscale</button>
+                    <button class="btn-primary" onclick="applyFilter('red')">Merah</button>
+                    <button class="btn-primary" onclick="applyFilter('green')">Hijau</button>
+                    <button class="btn-primary" onclick="applyFilter('blue')">Biru</button>
+                    <button class="btn-primary" onclick="applyFilter('sepia')">Sepia</button>
+                    <button class="btn-primary" onclick="applyFilter('invert')">Invert</button>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <h3>🎨 Custom Warna</h3>
+                <div class="color-picker-group">
+                    <input type="color" id="colorPicker" value="#ff6b6b">
+                    <button class="btn-primary" onclick="applyColorTint()">Terapkan Warna</button>
+                </div>
+
+                <div class="slider-control">
+                    <label>Intensitas: <span class="value-display" id="intensityValue">50%</span></label>
+                    <input type="range" id="intensitySlider" min="0" max="100" value="50"
+                        oninput="updateIntensityDisplay()">
+                </div>
+            </div>
+
+            <div class="control-group">
+                <h3>🌈 Hue Rotation</h3>
+                <div class="slider-control">
+                    <label>Rotasi Warna: <span class="value-display" id="hueValue">0°</span></label>
+                    <input type="range" id="hueSlider" min="0" max="360" value="0"
+                        oninput="updateHueDisplay(); applyHueRotation()">
+                </div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button class="btn-success" onclick="downloadImage()">💾 Download Hasil</button>
+            <button class="btn-danger" onclick="resetImage()">🔄 Reset</button>
+        </div>
+    </div>
+
+    <script>
+        const upload = document.getElementById('upload');
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        const colorPicker = document.getElementById('colorPicker');
+        const intensitySlider = document.getElementById('intensitySlider');
+        const hueSlider = document.getElementById('hueSlider');
+
+        let originalImageData = null;
+
+        upload.addEventListener('change', function () {
+            const file = this.files[0];
+            if (!file) return;
+
+            const img = new Image();
+            const reader = new FileReader();
+
+            reader.onload = function (e) {
+                img.src = e.target.result;
+            };
+
+            img.onload = function () {
+                canvas.width = img.width;
+                canvas.height = img.height;
+                ctx.drawImage(img, 0, 0);
+                originalImageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            };
+
+            reader.readAsDataURL(file);
+        });
+
+        function applyFilter(type) {
+            if (!originalImageData) {
+                alert('Silakan upload foto terlebih dahulu!');
+                return;
+            }
+
+            const imageData = ctx.createImageData(originalImageData);
+            const data = imageData.data;
+            const original = originalImageData.data;
+
+            for (let i = 0; i < original.length; i += 4) {
+                let r = original[i];
+                let g = original[i + 1];
+                let b = original[i + 2];
+
+                if (type === 'grayscale') {
+                    // Improved weighted grayscale formula
+                    let gray = 0.299 * r + 0.587 * g + 0.114 * b;
+                    data[i] = data[i + 1] = data[i + 2] = gray;
+                }
+                else if (type === 'red') {
+                    data[i] = r;
+                    data[i + 1] = 0;
+                    data[i + 2] = 0;
+                }
+                else if (type === 'green') {
+                    data[i] = 0;
+                    data[i + 1] = g;
+                    data[i + 2] = 0;
+                }
+                else if (type === 'blue') {
+                    data[i] = 0;
+                    data[i + 1] = 0;
+                    data[i + 2] = b;
+                }
+                else if (type === 'sepia') {
+                    let tr = 0.393 * r + 0.769 * g + 0.189 * b;
+                    let tg = 0.349 * r + 0.686 * g + 0.168 * b;
+                    let tb = 0.272 * r + 0.534 * g + 0.131 * b;
+                    data[i] = Math.min(255, tr);
+                    data[i + 1] = Math.min(255, tg);
+                    data[i + 2] = Math.min(255, tb);
+                }
+                else if (type === 'invert') {
+                    data[i] = 255 - r;
+                    data[i + 1] = 255 - g;
+                    data[i + 2] = 255 - b;
+                }
+
+                data[i + 3] = original[i + 3]; // alpha
+            }
+
+            ctx.putImageData(imageData, 0, 0);
+        }
+
+        function applyColorTint() {
+            if (!originalImageData) {
+                alert('Silakan upload foto terlebih dahulu!');
+                return;
+            }
+
+            const imageData = ctx.createImageData(originalImageData);
+            const data = imageData.data;
+            const original = originalImageData.data;
+
+            // Get selected color
+            const color = colorPicker.value;
+            const r_tint = parseInt(color.substr(1, 2), 16);
+            const g_tint = parseInt(color.substr(3, 2), 16);
+            const b_tint = parseInt(color.substr(5, 2), 16);
+
+            const intensity = intensitySlider.value / 100;
+
+            for (let i = 0; i < original.length; i += 4) {
+                let r = original[i];
+                let g = original[i + 1];
+                let b = original[i + 2];
+
+                // Blend original color with tint color
+                data[i] = r * (1 - intensity) + r_tint * intensity;
+                data[i + 1] = g * (1 - intensity) + g_tint * intensity;
+                data[i + 2] = b * (1 - intensity) + b_tint * intensity;
+                data[i + 3] = original[i + 3];
+            }
+
+            ctx.putImageData(imageData, 0, 0);
+        }
+
+        function applyHueRotation() {
+            if (!originalImageData) {
+                alert('Silakan upload foto terlebih dahulu!');
+                return;
+            }
+
+            const imageData = ctx.createImageData(originalImageData);
+            const data = imageData.data;
+            const original = originalImageData.data;
+
+            const hue = hueSlider.value * Math.PI / 180;
+            const cosA = Math.cos(hue);
+            const sinA = Math.sin(hue);
+
+            // Rotation matrix for hue
+            const matrix = [
+                cosA + (1 - cosA) / 3, 1 / 3 * (1 - cosA) - Math.sqrt(1 / 3) * sinA, 1 / 3 * (1 - cosA) + Math.sqrt(1 / 3) * sinA,
+                1 / 3 * (1 - cosA) + Math.sqrt(1 / 3) * sinA, cosA + 1 / 3 * (1 - cosA), 1 / 3 * (1 - cosA) - Math.sqrt(1 / 3) * sinA,
+                1 / 3 * (1 - cosA) - Math.sqrt(1 / 3) * sinA, 1 / 3 * (1 - cosA) + Math.sqrt(1 / 3) * sinA, cosA + 1 / 3 * (1 - cosA)
+            ];
+
+            for (let i = 0; i < original.length; i += 4) {
+                let r = original[i];
+                let g = original[i + 1];
+                let b = original[i + 2];
+
+                data[i] = Math.min(255, Math.max(0, r * matrix[0] + g * matrix[1] + b * matrix[2]));
+                data[i + 1] = Math.min(255, Math.max(0, r * matrix[3] + g * matrix[4] + b * matrix[5]));
+                data[i + 2] = Math.min(255, Math.max(0, r * matrix[6] + g * matrix[7] + b * matrix[8]));
+                data[i + 3] = original[i + 3];
+            }
+
+            ctx.putImageData(imageData, 0, 0);
+        }
+
+        function resetImage() {
+            if (originalImageData) {
+                ctx.putImageData(originalImageData, 0, 0);
+                hueSlider.value = 0;
+                intensitySlider.value = 50;
+                updateHueDisplay();
+                updateIntensityDisplay();
+            }
+        }
+
+        function downloadImage() {
+            if (!originalImageData) {
+                alert('Silakan upload dan edit foto terlebih dahulu!');
+                return;
+            }
+
+            const link = document.createElement('a');
+            link.download = 'edited-image.png';
+            link.href = canvas.toDataURL();
+            link.click();
+        }
+
+        function updateIntensityDisplay() {
+            document.getElementById('intensityValue').textContent = intensitySlider.value + '%';
+        }
+
+        function updateHueDisplay() {
+            document.getElementById('hueValue').textContent = hueSlider.value + '°';
+        }
+    </script>
+
+</body>
+
+</html>
